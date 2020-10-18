@@ -1,30 +1,37 @@
 package com.video.video.controller;
 
 import com.video.video.model.Movie;
-import com.video.video.model.Order;
 import com.video.video.repository.MovieRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/movies")
 @CrossOrigin
+@RequiredArgsConstructor
 public class MovieController {
 
-    private MovieRepository movieRepository;
-
-    public MovieController(MovieRepository movieRepository) {
-        this.movieRepository = movieRepository;
-    }
+    private final MovieRepository movieRepository;
 
     @PostConstruct
     public void saveOnStart() {
-        movieRepository.save(new Movie("Terminator: Mroczne przeznaczenie", "100"));
-        movieRepository.save(new Movie("The Game Changers", "30"));
-        movieRepository.save(new Movie("Dorwać Gunthera", "500"));
+        movieRepository.save(Movie.builder()
+                .name("Terminator: Mroczne przeznaczenie")
+                .price(100L)
+                .build());
+        movieRepository.save(Movie.builder()
+                .name("The Game Changers")
+                .price(30L)
+                .build());
+        movieRepository.save(Movie.builder()
+                .name("Dorwać Gunthera")
+                .price(500L)
+                .build());
     }
 
     @PostMapping
@@ -33,13 +40,13 @@ public class MovieController {
     }
 
     @GetMapping("/{id}")
-    public Movie get(@PathVariable Long id) {
-        Optional<Movie> movie = movieRepository.findById(id);
-        return movie.get();
+    public Movie getById(@PathVariable Long id) {
+        return movieRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
-    public void remove(@PathVariable Long id) {
+    public void deleteById(@PathVariable Long id) {
         movieRepository.deleteById(id);
     }
 
